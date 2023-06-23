@@ -2,12 +2,13 @@ import { QueryTypes } from "sequelize";
 import { sequelize } from "../sequelize.js";
 import SQLBuilder from "./SQLBuilder.js";
 import * as XLSX from "xlsx";
+import { unlinkSync } from 'fs'
 
 class TasksController {
   async get(req, res, next) {
     try {
       const { secondName, dateFrom, dateTo } = req.query
-      const sql = SQLBuilder.buildSqlTasksStatistic({ secondName, dateFrom })
+      const sql = SQLBuilder.buildGetTasksSql({ secondName, dateFrom, dateTo })
       const result = await sequelize.query(sql, { type: QueryTypes.SELECT })
       return res.status(200).json(result)
     } catch (error) {
@@ -17,16 +18,20 @@ class TasksController {
 
   async download(req, res, next) {
     try {
-      const { secondName, dateFrom } = req.query
-      const sql = SQLBuilder.buildSqlTasksStatistic({ secondName, dateFrom })
+      const { secondName, dateFrom, dateTo } = req.query
+      if (!secondName) {
+        return res.status(200).json({})
+      }
+      const sql = SQLBuilder.buildGetTasksSql({ secondName, dateFrom, dateTo })
       const result = await sequelize.query(sql, { type: QueryTypes.SELECT })
 
-      const toXLSXArray = result.map(row => {
-        return []
-      })
+      if (!result) {
+        return res.status(200).json([])
+      }
+
       const data = [
         ['Номер документа', "Статус задачи", "Текст задачи", "Исходная дата документа", "Дата регистрации канцелярии", "Срок исполнения", "Дата постановки"],
-
+        ...result.map(row => [row.number_source, row.task_type, row.task_text, row.date_source, row.date_received, row.terms, row.date_route])
       ]
 
       const worksheet = XLSX.utils.aoa_to_sheet(data);
@@ -34,16 +39,18 @@ class TasksController {
       XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet 1');
 
       // Сохранение файла на сервере
-      const filePath = `../files_tmp/${secondName}_tasks.xlsx`;
+      const filePath = `./${secondName}.xlsx`;
+      // const filePath = join('..', 'tmp_files', `${secondName}_tasks.xlsx`)
       XLSX.writeFile(workbook, filePath);
 
-      res.download(filePath, `${secondName}_tasks.xlsx`, (error) => {
+      // res.set('Content-Disposition', `attachment; filename="${secondName}.xlsx"`);
+      return res.download(filePath, (error) => {
         if (error) {
           // Обработка ошибки
           console.error('Ошибка при скачивании файла:', error);
         } else {
           // Удаление файла после скачивания
-          fs.unlinkSync(filePath);
+          unlinkSync(filePath);
         }
       });
     } catch (error) {

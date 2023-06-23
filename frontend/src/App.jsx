@@ -1,26 +1,20 @@
-import {useDispatch, useSelector} from "react-redux"
+import { useSelector } from "react-redux"
+import Options from "./components/Options"
 import Sidebar from "./components/Sidebar"
 import Tasks from "./components/Tasks"
-import {useEffect} from "react"
-import {fetchTasks} from "./store/tasksSlice"
-import TasksExtraData from "./components/TasksExtraData"
 
 function App() {
-  // const dispatch = useDispatch()
-
-  // const tasks = useSelector((state) => state.tasks.tasks)
-
-  // useEffect(() => {
-  //   dispatch(fetchTasks())
-  // }, [dispatch])
-
+  const tasks = useSelector(state => state.tasks.tasks)
   return (
     <div className="h-screen overflow-hidden flex flex-col">
       <div className="flex overflow-auto">
         <Sidebar />
-        <div className="overflow-auto w-5/6">
+        <div className="w-5/6 overflow-auto flex flex-col">
+          {tasks.length ? <Options /> : <></>}
+          <div className="overflow-auto">
+            <Tasks />
+          </div>
           {/* {tasks.length ? <TasksExtraData /> : <></>} */}
-          <Tasks />
         </div>
       </div>
     </div>
