@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState } from "react"
 import MyInput from "./UI/MyInput"
 import MyButton from "./UI/MyButton"
 import { useDispatch, useSelector } from "react-redux"
@@ -6,13 +6,27 @@ import { fetchTasks } from "../store/tasksSlice"
 import { setSecondName, setDateFrom, setDateTo } from "../store/queryParamsSlice"
 import axios from "axios"
 import { apiUrl } from "../../config"
+import SuitableDocflowUsers from "./SuitableDocflowUsers"
 
 export default function Sidebar() {
   const { secondName, dateFrom, dateTo } = useSelector((state) => state.queryParams)
+  const [suitableUsers, setSuitableUsers] = useState([])
   const dispatch = useDispatch()
 
-  const changeSecondNameHandler = (e) => {
-    dispatch(setSecondName(e.target.value))
+  const changeSecondNameHandler = async (e) => {
+    const query = e.target.value
+    dispatch(setSecondName(query))
+
+    if (!query) return setSuitableUsers([])
+
+
+    try {
+      const response = await axios.get(`${apiUrl}/tasks/docflowUsers`, { params: { q: query } })
+      const data = response.data
+      setSuitableUsers(data)
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   const changeDateFromHandler = (e) => {
@@ -63,6 +77,9 @@ export default function Sidebar() {
           placeholder="Иванов"
           onKeyDown={enterPressHandle}
         />
+        <div>
+          {suitableUsers.length ? <SuitableDocflowUsers setSuitableUsers={setSuitableUsers} suitableUsers={suitableUsers} /> : <></>}
+        </div>
       </div>
       <div className="flex gap-2">
         <MyInput onKeyDown={enterPressHandle} type="date" className="w-1/2" value={dateFrom} onChange={changeDateFromHandler} label="От" />

@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-tr > th, td {
-  padding: 5px;
+
+* {
+  box-sizing: border-box;
 }

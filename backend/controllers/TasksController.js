@@ -3,6 +3,7 @@ import { sequelize } from "../sequelize.js";
 import SQLBuilder from "./SQLBuilder.js";
 import * as XLSX from "xlsx";
 import { unlinkSync } from 'fs'
+import UsersController from "./UsersController.js";
 
 class TasksController {
   async get(req, res, next) {
@@ -11,6 +12,24 @@ class TasksController {
       const sql = SQLBuilder.buildGetTasksSql({ secondName, dateFrom, dateTo })
       const result = await sequelize.query(sql, { type: QueryTypes.SELECT })
       return res.status(200).json(result)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  async getDocflowUsers(req, res, next) {
+    try {
+      const { q } = req.query
+      const users = UsersController.getSuitableUsers(q)
+
+      // полностью совпадает
+      for (const u of users) {
+        if (u.toLowerCase() === q.toLowerCase()) {
+          return res.status(200).send([])
+        }
+      }
+
+      res.status(200).send(users)
     } catch (error) {
       console.log(error)
     }
