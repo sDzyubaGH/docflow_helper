@@ -12,6 +12,7 @@ import {saveAs} from "file-saver"
 export default function Sidebar() {
   const {secondName, dateFrom, dateTo} = useSelector((state) => state.queryParams)
   const [suitableUsers, setSuitableUsers] = useState([])
+  const [excelIsLoading, setExcelIsLoading] = useState(false)
   const dispatch = useDispatch()
 
   const changeSecondNameHandler = async (e) => {
@@ -42,12 +43,15 @@ export default function Sidebar() {
   }
 
   const downloadXLSX = async () => {
+    if (!secondName) return
+    setExcelIsLoading(true)
     const params = {secondName, dateFrom, dateTo}
     const response = await axios.get(`${apiUrl}/tasks/download`, {params, responseType: "blob"})
     const data = response.data
 
     const blob = new Blob([data], {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"})
     saveAs(blob, `${secondName}_задачи.xlsx`)
+    setExcelIsLoading(false)
   }
 
   const enterPressHandle = (e) => {
@@ -99,7 +103,9 @@ export default function Sidebar() {
           <MyButton onClick={showResults}>Показать</MyButton>
         </div>
         <div>
-          <MyButton onClick={downloadXLSX}>Скачать .xlsx</MyButton>
+          <MyButton disabled={excelIsLoading ? true : false} onClick={downloadXLSX}>
+            {excelIsLoading ? "Загрузка..." : "Скачать .xlsx"}
+          </MyButton>
         </div>
       </div>
     </div>
