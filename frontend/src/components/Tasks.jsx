@@ -36,7 +36,7 @@ export default function Tasks() {
         </tbody>
       </table>
       {tasks.length === 0 && fetchResult && fetchResult === "empty" && !error && (
-        <>Нет результатов. Возможно, фамилия введена с ошибкой</>
+        <>Нет результатов. Возможно, фамилия введена с ошибкой или задач нет</>
       )}
       {tasks.length === 0 && !secondName && !fetchResult && !error && <>Введите фамилию сотрудника и нажмите "Показать"</>}
     </div>

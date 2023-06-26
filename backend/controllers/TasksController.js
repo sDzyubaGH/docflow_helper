@@ -49,30 +49,16 @@ class TasksController {
 
       const workbook = new Excel.Workbook()
 
-      // workbook.creator = 'Me';
-      // workbook.lastModifiedBy = 'Her';
-      // workbook.created = new Date(1985, 8, 30);
-      // workbook.modified = new Date();
-      // workbook.lastPrinted = new Date(2016, 9, 27);
-      // workbook.properties.date1904 = true;
-
-      // workbook.views = [
-      //   {
-      //     x: 0, y: 0, width: 10000, height: 20000,
-      //     firstSheet: 0, activeTab: 1, visibility: 'visible'
-      //   }
-      // ]
-
       const worksheet = workbook.addWorksheet('Test')
 
       const headers = [
+        { key: 'date_route', header: 'Дата постановки', width: 16 },
         { key: 'number_source', header: 'Номер документа', width: 21 },
         { key: 'task_type', header: 'Статус задачи', width: 15 },
         { key: 'task_text', header: 'Текст задачи', width: 55 },
         { key: 'date_source', header: 'Исходная дата документа', width: 25 },
         { key: 'date_received', header: 'Дата регистрации в канцелярии', width: 30 },
-        { key: 'terms', header: 'Срок исполнения', width: 17 },
-        { key: 'date_route', header: 'Дата постановки', width: 16 },
+        { key: 'terms', header: 'Срок исполнения', width: 17 }
       ]
 
       worksheet.columns = headers
@@ -83,13 +69,13 @@ class TasksController {
         handledTaskText = handledTaskText?.replace(/\&lt;br \/\&gt;|<br \/>/g, '\n')
 
         worksheet.addRow({
+          date_route: row.date_route || '',
           number_source: row.number_source || '',
           task_type: row.task_type || '',
           task_text: handledTaskText || '',
           date_source: row.date_source || '',
           date_received: row.date_received || '',
-          terms: row.terms || '',
-          date_route: row.date_route || ''
+          terms: row.terms || ''
         })
 
 
