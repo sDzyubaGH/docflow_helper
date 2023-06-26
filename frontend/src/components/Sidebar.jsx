@@ -1,15 +1,16 @@
-import React, { useState } from "react"
+import React, {useState} from "react"
 import MyInput from "./UI/MyInput"
 import MyButton from "./UI/MyButton"
-import { useDispatch, useSelector } from "react-redux"
-import { fetchTasks } from "../store/tasksSlice"
-import { setSecondName, setDateFrom, setDateTo } from "../store/queryParamsSlice"
+import {useDispatch, useSelector} from "react-redux"
+import {fetchTasks} from "../store/tasksSlice"
+import {setSecondName, setDateFrom, setDateTo} from "../store/queryParamsSlice"
 import axios from "axios"
-import { apiUrl } from "../../config"
+import {apiUrl} from "../../config"
 import SuitableDocflowUsers from "./SuitableDocflowUsers"
+import { saveAs } from "file-saver"
 
 export default function Sidebar() {
-  const { secondName, dateFrom, dateTo } = useSelector((state) => state.queryParams)
+  const {secondName, dateFrom, dateTo} = useSelector((state) => state.queryParams)
   const [suitableUsers, setSuitableUsers] = useState([])
   const dispatch = useDispatch()
 
@@ -19,9 +20,8 @@ export default function Sidebar() {
 
     if (!query) return setSuitableUsers([])
 
-
     try {
-      const response = await axios.get(`${apiUrl}/tasks/docflowUsers`, { params: { q: query } })
+      const response = await axios.get(`${apiUrl}/tasks/docflowUsers`, {params: {q: query}})
       const data = response.data
       setSuitableUsers(data)
     } catch (error) {
@@ -38,25 +38,16 @@ export default function Sidebar() {
   }
 
   const showResults = () => {
-    dispatch(fetchTasks({ secondName, dateFrom, dateTo }))
+    dispatch(fetchTasks({secondName, dateFrom, dateTo}))
   }
 
-  const downloadXLSX = () => {
-    const params = { secondName, dateFrom, dateTo }
-    axios.get(`${apiUrl}/tasks/download`, { params })
-      .then(response => {
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', `${secondName}.xlsx`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      })
-      .catch(error => {
-        // Обработка ошибки
-        console.error('Ошибка при скачивании файла:', error);
-      });
+  const downloadXLSX = async () => {
+    const params = {secondName, dateFrom, dateTo}
+    const response = await axios.get(`${apiUrl}/tasks/download`, {params, responseType: "blob"})
+    const data = response.data
+
+    const blob = new Blob([data], {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"})
+    saveAs(blob, "Report.xlsx")
   }
 
   const enterPressHandle = (e) => {
@@ -78,12 +69,30 @@ export default function Sidebar() {
           onKeyDown={enterPressHandle}
         />
         <div>
-          {suitableUsers.length ? <SuitableDocflowUsers setSuitableUsers={setSuitableUsers} suitableUsers={suitableUsers} /> : <></>}
+          {suitableUsers.length ? (
+            <SuitableDocflowUsers setSuitableUsers={setSuitableUsers} suitableUsers={suitableUsers} />
+          ) : (
+            <></>
+          )}
         </div>
       </div>
       <div className="flex gap-2">
-        <MyInput onKeyDown={enterPressHandle} type="date" className="w-1/2" value={dateFrom} onChange={changeDateFromHandler} label="От" />
-        <MyInput onKeyDown={enterPressHandle} type="date" className="w-1/2" value={dateTo} onChange={changeDateToHandler} label="До" />
+        <MyInput
+          onKeyDown={enterPressHandle}
+          type="date"
+          className="w-1/2"
+          value={dateFrom}
+          onChange={changeDateFromHandler}
+          label="От"
+        />
+        <MyInput
+          onKeyDown={enterPressHandle}
+          type="date"
+          className="w-1/2"
+          value={dateTo}
+          onChange={changeDateToHandler}
+          label="До"
+        />
       </div>
       <div className="btns flex gap-4 flex-wrap">
         <div>
