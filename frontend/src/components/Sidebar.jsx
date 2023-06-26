@@ -47,7 +47,7 @@ export default function Sidebar() {
     const data = response.data
 
     const blob = new Blob([data], {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"})
-    saveAs(blob, "Report.xlsx")
+    saveAs(blob, `${secondName}_задачи.xlsx`)
   }
 
   const enterPressHandle = (e) => {
