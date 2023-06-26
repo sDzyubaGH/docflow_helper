@@ -37,8 +37,9 @@ const tasksSlice = createSlice({
       } else state.fetchResult = 'ok'
     },
     [fetchTasks.rejected]: (state, action) => {
+      console.log(action)
       state.loading = false
-      state.error = action.payload
+      state.error = action.error
       state.fetchResult = ''
     }
   }

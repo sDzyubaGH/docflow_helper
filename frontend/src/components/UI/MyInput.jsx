@@ -1,9 +1,6 @@
 import React from "react"
 
 export default function MyInput({label, placeholder, value, type, required, ...props}) {
-  const changeHandle = (e) => {
-    onChange && onChange(e.target.value)
-  }
   return (
     <div className={props?.className}>
       <label htmlFor="first_name" className="block mb-2 text-sm font-medium text-gray-900">

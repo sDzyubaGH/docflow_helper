@@ -1,8 +1,6 @@
 import { QueryTypes } from "sequelize";
 import { sequelize } from "../sequelize.js";
 import SQLBuilder from "./SQLBuilder.js";
-import * as XLSX from "xlsx";
-import { unlinkSync } from 'fs'
 import UsersController from "./UsersController.js";
 import Excel from 'exceljs'
 

@@ -1,26 +1,24 @@
-import React, { useEffect, useState } from "react"
+import React from "react"
 import Task from "./Task"
 import Loader from "./UI/Loader"
-import { useDispatch, useSelector } from "react-redux"
+import {useSelector} from "react-redux"
 
 export default function Tasks() {
-  const { tasks, loading, error, fetchResult } = useSelector((state) => state.tasks)
-  const { secondName } = useSelector((state) => state.queryParams)
-  const tasksType = useSelector(state => state.filterParams.tasksType)
-
-  console.log(tasks)
+  const {tasks, loading, error, fetchResult} = useSelector((state) => state.tasks)
+  const {secondName} = useSelector((state) => state.queryParams)
+  const tasksType = useSelector((state) => state.filterParams.tasksType)
 
   if (loading) {
     return <Loader />
   }
 
-  const filteredTasks = tasksType === 'all' ? tasks : tasks.filter(task => task.task_type === tasksType)
+  const filteredTasks = tasksType === "all" ? tasks : tasks.filter((task) => task.task_type === tasksType)
 
   return (
     <div className="overflow-auto">
       <table className="w-full">
         {error && <p className="text-red-500">{error.message}</p>}
-        <thead className="border-b table-fixed">
+        <thead className="border-b ">
           <tr className="sticky left-0 top-0 bg-white">
             <th>Дата постановки</th>
             <th className="w-[200px]">Номер документа</th>
@@ -37,8 +35,10 @@ export default function Tasks() {
           ))}
         </tbody>
       </table>
-      {tasks.length === 0 && fetchResult && fetchResult === "empty" && <>Нет результатов. Возможно, фамилия введена с ошибкой</>}
-      {tasks.length === 0 && !secondName && !fetchResult && <>Введите фамилию сотрудника и нажмите "Показать"</>}
+      {tasks.length === 0 && fetchResult && fetchResult === "empty" && !error && (
+        <>Нет результатов. Возможно, фамилия введена с ошибкой</>
+      )}
+      {tasks.length === 0 && !secondName && !fetchResult && !error && <>Введите фамилию сотрудника и нажмите "Показать"</>}
     </div>
   )
 }

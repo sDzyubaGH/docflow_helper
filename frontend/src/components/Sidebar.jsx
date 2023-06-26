@@ -7,7 +7,7 @@ import {setSecondName, setDateFrom, setDateTo} from "../store/queryParamsSlice"
 import axios from "axios"
 import {apiUrl} from "../../config"
 import SuitableDocflowUsers from "./SuitableDocflowUsers"
-import { saveAs } from "file-saver"
+import {saveAs} from "file-saver"
 
 export default function Sidebar() {
   const {secondName, dateFrom, dateTo} = useSelector((state) => state.queryParams)
