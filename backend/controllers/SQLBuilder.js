@@ -19,4 +19,8 @@ export default class SQLBuilder {
 
     return sql
   }
+
+  static buildGetDocumentsSql({ sender, dateFrom, dateTo, categories }) {
+
+  }
 }
