@@ -28,16 +28,16 @@ class DocumentsController {
   async getSenders(req, res, next) {
     try {
       const { q } = req.query
-      const users = UsersController.getSuitableUsers(q)
+      const suitableObjects = UsersController.getSuitableObjects(q)
 
       // полностью совпадает
-      for (const u of users) {
-        if (u.toLowerCase() === q.toLowerCase()) {
+      for (const o of suitableObjects) {
+        if (o.toLowerCase() === q.toLowerCase()) {
           return res.status(200).send([])
         }
       }
 
-      res.status(200).send(users)
+      res.status(200).send(suitableObjects)
     } catch (error) {
       console.log(error)
     }
