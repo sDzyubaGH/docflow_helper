@@ -5,7 +5,7 @@ import axios from "axios";
 export const fetchDocuments = createAsyncThunk(
   'documents/fetchDocuments',
   async function (params) {
-    const response = await axios.get(`${apiUrl}/tasks`, { params })
+    const response = await axios.get(`${apiUrl}/documents`, { params })
     const data = response.data
     return data
   }

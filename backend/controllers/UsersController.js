@@ -2,6 +2,8 @@ import { QueryTypes } from "sequelize"
 import { sequelize } from "../sequelize.js"
 
 class UsersController {
+  users = []
+  objects = []
   constructor() {
     this._fetchUsers()
       .then(data => this.users = data)
@@ -14,22 +16,22 @@ class UsersController {
 
   async _fetchUsers() {
     try {
-      const suitableUsers = await sequelize.query("SELECT login FROM docflow_users", { type: QueryTypes.SELECT })
-      const users = suitableUsers.map(u => u.login)
-      return users
+      const suitableUsers = await sequelize.query("SELECT id, login as name FROM docflow_users", { type: QueryTypes.SELECT })
+      // const users = suitableUsers.map(u => u.login)
+      return suitableUsers
     } catch (error) {
       console.log(error)
     }
   }
 
   getSuitableUsers(q) {
-    if (!q) return null
-    return this.users.filter(u => u.toLowerCase().match(q.toLowerCase()))
+    if (!q || !this.users.length) return null
+    return this.users.filter(u => u.name.toLowerCase().match(q.toLowerCase()))
   }
 
   async _fetchObjcect() {
     try {
-      const allObjects = (await sequelize.query("SELECT ShortName_Object FROM Objects_Attributes", { type: QueryTypes.SELECT })).map(o => o.ShortName_Object)
+      const allObjects = await sequelize.query("SELECT Count_Objects as id, ShortName_Object as name FROM Objects_Attributes", { type: QueryTypes.SELECT })
       return allObjects
     } catch (error) {
       console.log(error)
@@ -37,8 +39,8 @@ class UsersController {
   }
 
   getSuitableObjects(q) {
-    if (!q) return null
-    return this.objects.filter(o => o.toLowerCase().match(q.toLowerCase()))
+    if (!q || !this.users.length) return null
+    return this.objects.filter(o => o.name.toLowerCase().match(q.toLowerCase()))
   }
 }
 

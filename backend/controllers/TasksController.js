@@ -23,7 +23,7 @@ class TasksController {
 
       // полностью совпадает
       for (const u of users) {
-        if (u.toLowerCase() === q.toLowerCase()) {
+        if (u.name.toLowerCase() === q.toLowerCase()) {
           return res.status(200).send([])
         }
       }

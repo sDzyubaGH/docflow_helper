@@ -12,10 +12,10 @@ export const fetchCategories = createAsyncThunk(
 )
 
 const initialState = {
-  sender: '',
+  sender: {},
   dateFrom: '',
   dateTo: '',
-  category: '',
+  selectedCategories: [],
   limit: 100,
   page: 1,
   loading: false,
@@ -34,6 +34,19 @@ const documentsParamsSlice = createSlice({
     },
     setDateTo(state, action) {
       state.dateTo = action.payload
+    },
+    addSelectedCategories(state, action) {
+      state.selectedCategories.push(action.payload)
+    },
+    removeSelectedCategories(state, action) {
+      let count = 0
+      const newCategory = action.payload
+      for (const sc of state.selectedCategories) {
+        if (sc.id === newCategory.id) {
+          state.selectedCategories.splice(count, 1)
+        }
+        count++
+      }
     }
   },
   extraReducers: {
@@ -53,6 +66,6 @@ const documentsParamsSlice = createSlice({
   }
 })
 
-export const { setSender, setDateFrom, setDateTo } = documentsParamsSlice.actions
+export const { setSender, setDateFrom, setDateTo, addSelectedCategories, removeSelectedCategories } = documentsParamsSlice.actions
 
 export default documentsParamsSlice.reducer

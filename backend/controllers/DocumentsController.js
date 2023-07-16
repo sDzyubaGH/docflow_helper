@@ -7,10 +7,26 @@ import Excel from 'exceljs'
 class DocumentsController {
   async get(req, res, next) {
     try {
-      const { sender, dateFrom, dateTo, categories } = req.query
-      const sql = SQLBuilder.buildGetDocumentsSql({ sender, dateFrom, dateTo, categories })
+      const { senderId, dateFrom, dateTo, categories } = req.query
+      const sql = SQLBuilder.buildGetDocumentsSql({ senderId, dateFrom, dateTo, categories })
       const result = await sequelize.query(sql, { type: QueryTypes.SELECT })
-      return res.status(200).json(result)
+
+      // Фильтрация документов по выбранным категориям
+      const filteredDocuments = categories?.length
+        ? result?.filter(d => {
+          if (!d.categories) return false
+
+          const docCategories = d.categories.split(';')
+          for (const docCat of docCategories) {
+            if (categories.includes(docCat)) {
+              return true
+            }
+          }
+          return false
+        })
+        : result
+
+      return res.status(200).json(filteredDocuments)
     } catch (error) {
       console.log(error)
     }
@@ -32,7 +48,7 @@ class DocumentsController {
 
       // полностью совпадает
       for (const o of suitableObjects) {
-        if (o.toLowerCase() === q.toLowerCase()) {
+        if (o.name.toLowerCase() === q.toLowerCase()) {
           return res.status(200).send([])
         }
       }

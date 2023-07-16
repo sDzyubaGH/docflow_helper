@@ -20,7 +20,23 @@ export default class SQLBuilder {
     return sql
   }
 
-  static buildGetDocumentsSql({ sender, dateFrom, dateTo, categories }) {
+  static buildGetDocumentsSql({ senderId, dateFrom, dateTo, categories }) {
+    let sql = `SELECT dd.id, dd.number_source as docNumber, dd.date_source as docDate, dd.date_received as receiveDate, dd.categories 
+    FROM docflow_documents dd  
+    WHERE sender = '${senderId}'`
 
+    if (dateFrom && !dateTo) {
+      const condition = ` AND date_route > '${dateFrom}'`
+      sql += condition
+    }
+    if (!dateFrom && dateTo) {
+      const condition = ` AND date_route < '${dateTo}'`
+      sql += condition
+    }
+    if (dateFrom && dateTo) {
+      const condition = ` AND date_route BETWEEN '${dateFrom}' AND '${dateTo}'`
+      sql += condition
+    }
+    return sql
   }
 }

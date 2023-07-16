@@ -1,19 +1,21 @@
-import React, {useEffect, useState} from "react"
+import React, { useEffect, useState } from "react"
 import MyInput from "./UI/MyInput"
-import {useDispatch, useSelector} from "react-redux"
-import {setSender, setDateFrom, setDateTo, fetchCategories} from "../store/documentsParamsSlice"
+import { useDispatch, useSelector } from "react-redux"
+import { setSender, setDateFrom, setDateTo, fetchCategories, addSelectedCategories, removeSelectedCategories } from "../store/documentsParamsSlice"
 import arrow from "../assets/angle-arrow-down_icon-icons.com_73683.png"
 import MyButton from "./UI/MyButton"
-import {apiUrl} from "../../config"
+import { apiUrl } from "../../config"
 import axios from "axios"
+import SuitableDocflowUsers from "./SuitableDocflowUsers"
+import { fetchDocuments } from "../store/documentsSlice"
 
 export default function DocumentsParams() {
-  const [selectedCategories, setSelectedCategories] = useState([])
+  // const [selectedCategories, setSelectedCategories] = useState([])
   const [showCategories, setShowCategories] = useState(false)
   const [suitableObjects, setSuitableObjects] = useState([])
 
   const options = useSelector((state) => state.documentsParams)
-  const {sender, dateFrom, dateTo, categories, loading} = options
+  const { sender, dateFrom, dateTo, categories, selectedCategories, loading } = options
   const dispatch = useDispatch()
 
   useEffect(() => {
@@ -27,7 +29,7 @@ export default function DocumentsParams() {
     if (!query) return setSuitableObjects([])
 
     try {
-      const response = await axios.get(`${apiUrl}/documents/docflowObjects`, {params: {q: query}})
+      const response = await axios.get(`${apiUrl}/documents/docflowObjects`, { params: { q: query } })
       const data = response.data
       setSuitableObjects(data)
     } catch (error) {
@@ -35,7 +37,21 @@ export default function DocumentsParams() {
     }
   }
 
-  const showResults = () => {}
+  const showResults = async () => {
+    if (!sender?.id) return null
+
+    const params = {
+      senderId: sender.id,
+      dateFrom,
+      dateTo,
+      categories: selectedCategories?.map(sc => sc.id)
+    }
+    try {
+      dispatch(fetchDocuments(params))
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   const enterPressHandle = (e) => {
     if (e.key === "Enter") {
@@ -48,7 +64,7 @@ export default function DocumentsParams() {
       if (c.id === cat.id) return
     }
 
-    setSelectedCategories([...selectedCategories, c])
+    dispatch(addSelectedCategories(c))
   }
 
   const selectedCategoryClickHandler = () => {
@@ -63,7 +79,7 @@ export default function DocumentsParams() {
     dispatch(setDateTo(e.target.value))
   }
 
-  const downloadXLSX = () => {}
+  const downloadXLSX = () => { }
 
   let filteredCategories = categories?.filter((c) => {
     for (const sc of selectedCategories) {
@@ -75,8 +91,14 @@ export default function DocumentsParams() {
   const removeCategoryClickHandler = (c, e) => {
     e.stopPropagation()
     if (selectedCategories.includes(c)) {
-      setSelectedCategories(selectedCategories.filter((sc) => sc.id !== c.id))
+      // setSelectedCategories(selectedCategories.filter((sc) => sc.id !== c.id))
+      dispatch(removeSelectedCategories(c))
     }
+  }
+
+  const selectObjectHandler = (object) => {
+    setSuitableObjects([])
+    dispatch(setSender(object))
   }
 
   return (
@@ -88,8 +110,9 @@ export default function DocumentsParams() {
           onKeyDown={enterPressHandle}
           placeholder="Название организации"
           onChange={changeSenderHandler}
-          value={sender}
+          value={sender.name}
         />
+        {suitableObjects.length ? <SuitableDocflowUsers selectEvent={selectObjectHandler} suitableUsers={suitableObjects} /> : <></>}
       </div>
       <div className="max-w-[300px]">
         <label className="block mb-2 text-sm font-medium text-gray-900">Категории</label>
@@ -100,16 +123,16 @@ export default function DocumentsParams() {
           <div className="flex-1">
             {selectedCategories.length
               ? selectedCategories.map((sc) => (
-                  <div key={sc.id} className="flex justify-between border-b py-1 first:pt-0 last:border-none last:pb-0">
-                    <span>{sc.name}</span>
-                    <span
-                      className="cursor-pointer flex justify-center items-center"
-                      onClick={(e) => removeCategoryClickHandler(sc, e)}
-                    >
-                      x
-                    </span>
-                  </div>
-                ))
+                <div key={sc.id} className="flex justify-between border-b py-1 first:pt-0 last:border-none last:pb-0">
+                  <span>{sc.name}</span>
+                  <span
+                    className="cursor-pointer flex justify-center items-center"
+                    onClick={(e) => removeCategoryClickHandler(sc, e)}
+                  >
+                    x
+                  </span>
+                </div>
+              ))
               : "Все документы"}
           </div>
           <div className="pl-5 flex justify-center items-end">
@@ -151,15 +174,13 @@ export default function DocumentsParams() {
           label="До"
         />
       </div>
-      <div className="btns flex justify-between flex-wrap">
-        <div>
-          <MyButton onClick={showResults}>Показать</MyButton>
-        </div>
-        <div>
+      <div className="btns">
+        <MyButton onClick={showResults}>Показать</MyButton>
+        {/* <div>
           <MyButton disabled={loading ? true : false} onClick={downloadXLSX}>
             {loading ? "Загрузка..." : "Скачать .xlsx"}
           </MyButton>
-        </div>
+        </div> */}
       </div>
     </div>
   )
