@@ -10,22 +10,32 @@ export function localeDate(date) {
 export function handleSpecSymbols(string) {
   if (!string) return null
 
-  return string?.replace(/\&lt;br \/\&gt;|<br \/>/g, '\n')
+  if (string.match(/\&lt;br \/\&gt;|<br \/>/g, '\n')) {
+    return string?.replace(/\&lt;br \/\&gt;|<br \/>/g, '\n')
+  }
+
+  if (string.match(/\&quot;/g)) {
+    return string.replace(/\&quot;/g, '"')
+  }
+
+  // Какой-то другой случай
+  return string
 }
 
 export function getCategories(categories, allCategories) {
   if (!categories) return null
 
-  let categoriesString = ''
-
   const splitedCat = categories.split(';')
+
+  const foundedCategories = []
 
   for (const ac of allCategories) {
     for (const sc of splitedCat) {
       if (parseInt(sc) === ac.id) {
-        categoriesString += ac.name + ' '
+        foundedCategories.push(ac.name)
       }
     }
   }
-  return categoriesString
+
+  return foundedCategories.join(', ')
 }

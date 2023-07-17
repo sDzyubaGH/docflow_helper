@@ -1,16 +1,16 @@
-import React, { useState } from "react"
+import React, {useState} from "react"
 import MyInput from "./UI/MyInput"
 import MyButton from "./UI/MyButton"
-import { useDispatch, useSelector } from "react-redux"
-import { fetchTasks } from "../store/tasksSlice"
-import { setSecondName, setDateFrom, setDateTo } from "../store/queryParamsSlice"
+import {useDispatch, useSelector} from "react-redux"
+import {fetchTasks} from "../store/tasksSlice"
+import {setSecondName, setDateFrom, setDateTo} from "../store/queryParamsSlice"
 import axios from "axios"
-import { apiUrl } from "../../config"
+import {apiUrl} from "../../config"
 import SuitableDocflowUsers from "./SuitableDocflowUsers"
-import { saveAs } from "file-saver"
+import {saveAs} from "file-saver"
 
 export default function TasksParams() {
-  const { secondName, dateFrom, dateTo } = useSelector((state) => state.queryParams)
+  const {secondName, dateFrom, dateTo} = useSelector((state) => state.queryParams)
   const [suitableUsers, setSuitableUsers] = useState([])
   const [excelIsLoading, setExcelIsLoading] = useState(false)
   const dispatch = useDispatch()
@@ -22,7 +22,7 @@ export default function TasksParams() {
     if (!query) return setSuitableUsers([])
 
     try {
-      const response = await axios.get(`${apiUrl}/tasks/docflowUsers`, { params: { q: query } })
+      const response = await axios.get(`${apiUrl}/tasks/docflowUsers`, {params: {q: query}})
       const data = response.data
       setSuitableUsers(data)
     } catch (error) {
@@ -39,17 +39,19 @@ export default function TasksParams() {
   }
 
   const showResults = () => {
-    dispatch(fetchTasks({ secondName, dateFrom, dateTo }))
+    if (!secondName) return null
+    
+    dispatch(fetchTasks({secondName, dateFrom, dateTo}))
   }
 
   const downloadXLSX = async () => {
     if (!secondName) return
     setExcelIsLoading(true)
-    const params = { secondName, dateFrom, dateTo }
-    const response = await axios.get(`${apiUrl}/tasks/download`, { params, responseType: "blob" })
+    const params = {secondName, dateFrom, dateTo}
+    const response = await axios.get(`${apiUrl}/tasks/download`, {params, responseType: "blob"})
     const data = response.data
 
-    const blob = new Blob([data], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" })
+    const blob = new Blob([data], {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"})
     saveAs(blob, `${secondName}_задачи.xlsx`)
     setExcelIsLoading(false)
   }
@@ -104,8 +106,10 @@ export default function TasksParams() {
         />
       </div>
       <div className="btns flex justify-between gap-4">
-        <MyButton className='w-full' onClick={showResults}>Показать</MyButton>
-        <MyButton className='w-full' disabled={excelIsLoading ? true : false} onClick={downloadXLSX}>
+        <MyButton className="w-full" onClick={showResults}>
+          Показать
+        </MyButton>
+        <MyButton className="w-full" disabled={excelIsLoading ? true : false} onClick={downloadXLSX}>
           {excelIsLoading ? "Загрузка..." : "Скачать .xlsx"}
         </MyButton>
       </div>

@@ -22,7 +22,7 @@ export default function Tasks() {
           <tr className="sticky left-0 top-0 bg-white">
             <th>Дата постановки</th>
             <th className="w-[200px]">Номер документа</th>
-            <th className="py-2 w-[200px]">Статус задачи</th>
+            <th className="py-1 w-[200px]">Статус задачи</th>
             <th className="w-[500px]">Текст задачи</th>
             <th>Исходная дата документа</th>
             <th>Дата рег. в канцелярии</th>

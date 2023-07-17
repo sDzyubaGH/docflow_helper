@@ -26,15 +26,15 @@ export default class SQLBuilder {
     WHERE sender = '${senderId}'`
 
     if (dateFrom && !dateTo) {
-      const condition = ` AND date_route > '${dateFrom}'`
+      const condition = ` AND dd.date_source > '${dateFrom}'`
       sql += condition
     }
     if (!dateFrom && dateTo) {
-      const condition = ` AND date_route < '${dateTo}'`
+      const condition = ` AND dd.date_source < '${dateTo}'`
       sql += condition
     }
     if (dateFrom && dateTo) {
-      const condition = ` AND date_route BETWEEN '${dateFrom}' AND '${dateTo}'`
+      const condition = ` AND dd.date_source BETWEEN '${dateFrom}' AND '${dateTo}'`
       sql += condition
     }
     return sql

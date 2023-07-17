@@ -1,13 +1,21 @@
-import React, { useEffect, useState } from "react"
+import React, {useEffect, useState} from "react"
 import MyInput from "./UI/MyInput"
-import { useDispatch, useSelector } from "react-redux"
-import { setSender, setDateFrom, setDateTo, fetchCategories, addSelectedCategories, removeSelectedCategories } from "../store/documentsParamsSlice"
+import {useDispatch, useSelector} from "react-redux"
+import {
+  setSender,
+  setDateFrom,
+  setDateTo,
+  fetchCategories,
+  addSelectedCategories,
+  removeSelectedCategories,
+} from "../store/documentsParamsSlice"
 import arrow from "../assets/angle-arrow-down_icon-icons.com_73683.png"
 import MyButton from "./UI/MyButton"
-import { apiUrl } from "../../config"
+import {apiUrl} from "../../config"
 import axios from "axios"
 import SuitableDocflowUsers from "./SuitableDocflowUsers"
-import { fetchDocuments } from "../store/documentsSlice"
+import {fetchDocuments} from "../store/documentsSlice"
+import { handleSpecSymbols } from "../utils/functions"
 
 export default function DocumentsParams() {
   // const [selectedCategories, setSelectedCategories] = useState([])
@@ -15,7 +23,7 @@ export default function DocumentsParams() {
   const [suitableObjects, setSuitableObjects] = useState([])
 
   const options = useSelector((state) => state.documentsParams)
-  const { sender, dateFrom, dateTo, categories, selectedCategories, loading } = options
+  const {sender, dateFrom, dateTo, categories, selectedCategories, loading} = options
   const dispatch = useDispatch()
 
   useEffect(() => {
@@ -29,7 +37,7 @@ export default function DocumentsParams() {
     if (!query) return setSuitableObjects([])
 
     try {
-      const response = await axios.get(`${apiUrl}/documents/docflowObjects`, { params: { q: query } })
+      const response = await axios.get(`${apiUrl}/documents/docflowObjects`, {params: {q: query}})
       const data = response.data
       setSuitableObjects(data)
     } catch (error) {
@@ -44,7 +52,7 @@ export default function DocumentsParams() {
       senderId: sender.id,
       dateFrom,
       dateTo,
-      categories: selectedCategories?.map(sc => sc.id)
+      categories: selectedCategories?.map((sc) => sc.id),
     }
     try {
       dispatch(fetchDocuments(params))
@@ -79,7 +87,7 @@ export default function DocumentsParams() {
     dispatch(setDateTo(e.target.value))
   }
 
-  const downloadXLSX = () => { }
+  const downloadXLSX = () => {}
 
   let filteredCategories = categories?.filter((c) => {
     for (const sc of selectedCategories) {
@@ -110,9 +118,13 @@ export default function DocumentsParams() {
           onKeyDown={enterPressHandle}
           placeholder="Название организации"
           onChange={changeSenderHandler}
-          value={sender.name}
+          value={handleSpecSymbols(sender.name)}
         />
-        {suitableObjects.length ? <SuitableDocflowUsers selectEvent={selectObjectHandler} suitableUsers={suitableObjects} /> : <></>}
+        {suitableObjects.length ? (
+          <SuitableDocflowUsers selectEvent={selectObjectHandler} suitableUsers={suitableObjects} />
+        ) : (
+          <></>
+        )}
       </div>
       <div className="max-w-[300px]">
         <label className="block mb-2 text-sm font-medium text-gray-900">Категории</label>
@@ -123,16 +135,16 @@ export default function DocumentsParams() {
           <div className="flex-1">
             {selectedCategories.length
               ? selectedCategories.map((sc) => (
-                <div key={sc.id} className="flex justify-between border-b py-1 first:pt-0 last:border-none last:pb-0">
-                  <span>{sc.name}</span>
-                  <span
-                    className="cursor-pointer flex justify-center items-center"
-                    onClick={(e) => removeCategoryClickHandler(sc, e)}
-                  >
-                    x
-                  </span>
-                </div>
-              ))
+                  <div key={sc.id} className="flex justify-between border-b py-1 first:pt-0 last:border-none last:pb-0">
+                    <span>{sc.name}</span>
+                    <span
+                      className="cursor-pointer flex justify-center items-center"
+                      onClick={(e) => removeCategoryClickHandler(sc, e)}
+                    >
+                      x
+                    </span>
+                  </div>
+                ))
               : "Все документы"}
           </div>
           <div className="pl-5 flex justify-center items-end">
